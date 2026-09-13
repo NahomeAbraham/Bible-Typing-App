@@ -9,26 +9,34 @@ const PORT = 5001;
 app.use(cors());
 app.use(express.json());
 
-// Load Bible Data into memory
+const bibleFilePath = path.join(__dirname, '../../data/kjv.json');
+
 const bibleData = JSON.parse(
-  fs.readFileSync(path.join(__dirname, '../../../data/kjv.json'), 'utf8')
+  fs.readFileSync(bibleFilePath, 'utf8')
 );
 
-// Route: Get a random verse
-app.get('/api/verse/random', (req, res) => {
-  const books = bibleData;
-  const randomBook = books[Math.floor(Math.random() * books.length)];
-  const randomChapter = randomBook.chapters[Math.floor(Math.random() * randomBook.chapters.length)];
-  const randomVerse = randomChapter[Math.floor(Math.random() * randomChapter.length)];
+app.get('/api/verse/random', (_req, res) => {
+  const randomBook =
+    bibleData[Math.floor(Math.random() * bibleData.length)];
+
+  const randomChapterIndex = Math.floor(
+    Math.random() * randomBook.chapters.length
+  );
+  const randomChapter = randomBook.chapters[randomChapterIndex];
+
+  const randomVerseIndex = Math.floor(
+    Math.random() * randomChapter.length
+  );
+  const randomVerse = randomChapter[randomVerseIndex];
 
   res.json({
     book: randomBook.name,
-    chapter: randomBook.chapters.indexOf(randomChapter) + 1,
-    verseNum: randomChapter.indexOf(randomVerse) + 1,
-    text: randomVerse
+    chapter: randomChapterIndex + 1,
+    verseNum: randomVerseIndex + 1,
+    text: randomVerse,
   });
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`Server running at http://localhost:${PORT}`);
 });
