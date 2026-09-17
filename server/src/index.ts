@@ -3,6 +3,18 @@ import express from 'express';
 import cors from 'cors';
 import { Pool } from 'pg';
 
+// ── Startup environment validation ──────────────────────────────────────────
+const REQUIRED_ENV_VARS = ['PG_HOST', 'PG_PORT', 'PG_DATABASE', 'PG_USER', 'PG_PASSWORD'] as const;
+const missingEnvVars = REQUIRED_ENV_VARS.filter((key) => !process.env[key]);
+
+if (missingEnvVars.length > 0) {
+  console.error(
+    `Missing required environment variable(s): ${missingEnvVars.join(', ')}. ` +
+    'Copy server/.env.example to server/.env and fill in the values before starting the server.'
+  );
+  process.exit(1);
+}
+
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 5001;
 
@@ -11,11 +23,11 @@ app.use(express.json());
 
 // ── PostgreSQL connection pool ──────────────────────────────────────────────
 const pool = new Pool({
-  host:     process.env.PG_HOST     ?? 'localhost',
-  port:     process.env.PG_PORT     ? parseInt(process.env.PG_PORT) : 5432,
-  database: process.env.PG_DATABASE ?? 'bible_data',
-  user:     process.env.PG_USER     ?? 'nahomeabraham',
-  password: process.env.PG_PASSWORD ?? undefined,
+  host:     process.env.PG_HOST,
+  port:     parseInt(process.env.PG_PORT as string),
+  database: process.env.PG_DATABASE,
+  user:     process.env.PG_USER,
+  password: process.env.PG_PASSWORD,
 });
 
 // ── Health check ────────────────────────────────────────────────────────────

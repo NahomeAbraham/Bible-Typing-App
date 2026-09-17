@@ -24,7 +24,8 @@ const TypingEngine: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch('http://localhost:5001/api/verse/random');
+      const apiUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:5001';
+      const res = await fetch(`${apiUrl}/api/verse/random`);
       if (!res.ok) {
         throw new Error(`Server responded with status: ${res.status}`);
       }
